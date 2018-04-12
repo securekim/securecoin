@@ -1,0 +1,10 @@
+{
+  "name": "securecoin",
+  "version": "1.0.0",
+  "description": "Securecoin, the most secure coin made in NodeJS by securekim",
+  "main": "src/server.js",
+  "repository": "https://github.com/securekim/securecoin.git",
+  "author": "securekim <admin@securekim.com>",
+  "license": "MIT",
+  "private": false
+}
