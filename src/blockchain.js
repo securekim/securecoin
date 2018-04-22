@@ -27,6 +27,8 @@ const getLastBlock = () => blockChain[blockChain.length -1];
 
 const getTimeStamp = () => new Date().getTime() / 1000;
 
+const getBlockChain = () => blockChain;
+
 const createHash = (index, previousHash, timestamp, data) => 
     CryptoJS.SHA256(index + previousHash + timestamp + JSON.stringify(data)).toString();
 
@@ -51,7 +53,10 @@ console.log(creatNewBlock());
 const getBlocksHash = (block) => createHash(block.index, block.previousHash, block.timestamp, block.data);
 
 const isNewBlockValid = (candidateBlock, latestBlock) =>{
-    if(latestBlock.index + 1 !== candidateBlock.index){
+    if(!isNewStructureValid(candidateBlock)){
+        console.log("The candidate block structure is not valid");
+        return false;
+    }else if(latestBlock.index + 1 !== candidateBlock.index){
         console.log("The candidate block doesn't have a valid index");
         return false;
     } else if(latestBlock.hash !== candidateBlock.previousHash){
@@ -64,7 +69,7 @@ const isNewBlockValid = (candidateBlock, latestBlock) =>{
     return true;
 }
 
-const isNewStructureValid = (block) => {
+const isNewStructureValid = block => {
     return (
         typeof block.index === 'number' && 
         typeof block.hash === "string" && 
@@ -74,3 +79,39 @@ const isNewStructureValid = (block) => {
     ) 
 }
 
+const isChainValid = (candidateChain) => {
+    //Genesis 출신을 확인해야함
+    const isGenesisValid = block => {
+        return JSON.stringify(block) === JSON.stringify(genesisBlock);
+    };
+    if(!isGenesisValid(candidateChain[0])){
+        console.log("The candidateChain's genesisBlock is not the same as our genesisBlock ");
+        return false;
+    }
+    
+    for (let i= 1; i < candidateChain.length; i++){ 
+        // I don't want to validate genesis block - Genesis block doesn't have prev hash
+        if(!isNewBlockValid(candidateChain[i], candidateChain[i-1])){
+            return false;
+        }
+        return true;
+    }
+}
+
+const replaceChain = candidateChain => {
+    if(isChainValid(candidateChain) && candidateChain.length > getBlockChain().length){
+        blockChain = candidateChain;
+        return true;
+    } else {
+        return false;
+    }
+};
+
+const addBlockToChain = candidateBlock => {
+    if(isNewBlockValid(candidateBlock,getLastBlock())){
+        blockchain.push(candidateBlock);
+        return true;
+    } else {
+        return false;
+    }
+}
