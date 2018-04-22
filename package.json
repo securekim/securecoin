@@ -6,5 +6,8 @@
   "repository": "https://github.com/securekim/securecoin.git",
   "author": "securekim <admin@securekim.com>",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "crypto-js": "^3.1.9-1"
+  }
 }
