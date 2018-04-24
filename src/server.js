@@ -1,9 +1,13 @@
+//import { start } from "repl";
+
 const express = require("express"),
     bodyParser = require ("body-parser"),
     morgan = require ("morgan"),
     Blockchain = require("./blockchain");
+    P2P = require("./p2p");
 
 const {getBlockChain, createNewBlock} = Blockchain;
+const {startP2PServer} = P2P;
 
 const PORT = process.env.HTTP_PORT || 3000; // if doesn't find in environment
 
@@ -22,4 +26,7 @@ app.post("/blocks", (req,res)=>{
 });
 
 
-app.listen(PORT, () => console.log(`secureCoin Server running on ${PORT}`));
+
+const server = app.listen(PORT, () => console.log(`secureCoin Server running on ${PORT}`));
+
+startP2PServer(server);
