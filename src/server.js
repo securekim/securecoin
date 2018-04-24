@@ -3,11 +3,23 @@ const express = require("express"),
     morgan = require ("morgan"),
     Blockchain = require("./blockchain");
 
-const {getBlockchain, createNewBlock} = Blockchain;
+const {getBlockChain, createNewBlock} = Blockchain;
 
-const port = 3000;
+const PORT = 3000;
 
 const app = express();
 app.use(bodyParser.json());
 app.use(morgan("combined"));
+
+app.get("/blocks", (req,res)=>{
+    res.send(getBlockChain());
+})
+
+app.post("/blocks", (req,res)=>{
+    const {body: {data}} = req;
+    const newBlock = createNewBlock(data);
+    res.send(newBlock);
+});
+
+
 app.listen(PORT, () => console.log(`secureCoin Server running on ${PORT}`));
