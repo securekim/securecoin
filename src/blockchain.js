@@ -45,6 +45,7 @@ const creatNewBlock = data => {
         newTimestamp,
         data
     );
+    addBlockToChain(newBlock);
     return newBlock;
 };
 
