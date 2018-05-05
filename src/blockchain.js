@@ -1,5 +1,12 @@
 const CryptoJS = require("crypto-js");
 
+//Real Bit Coin is...
+// 블록의 hash 를 hex 로 바꾸어서 앞에 0이 열 몇자리가 나와야 한다.
+// 열 몇자리라는 것이 난이도이다.
+// hash 값은 알다시피 index, previousHash, timestamp, data 등을 합쳐서 hash 한 값이다.
+// 이것을 가능하게 하기 위해 nonce 를 임의로 주게 되어 있다.
+// 궁금한점. 0 이 난이도 만큼 나올 수 있다는 것을 어떻게 증명하는가?
+
 class Block {
     constructor(index, hash, previousHash, timestamp, data){
         this.index = index;
