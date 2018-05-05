@@ -1,4 +1,5 @@
 const CryptoJS = require("crypto-js");
+    hexToBinary = require("hex-to-binary");
 
 //Real Bit Coin is...
 // 블록의 hash 를 hex 로 바꾸어서 앞에 0이 열 몇자리가 나와야 한다.
@@ -7,13 +8,21 @@ const CryptoJS = require("crypto-js");
 // 이것을 가능하게 하기 위해 nonce 를 임의로 주게 되어 있다.
 // 궁금한점. 0 이 난이도 만큼 나올 수 있다는 것을 어떻게 증명하는가?
 
+// 2016 개의 블록마다 난이도 조절이 들어간다. 10분 내외로.
+
+const BLOCK_GENERATION_INTERVAL         =   10; //sec
+const DIFFICULTY_ADJUSTMENT_INTERVAL    =   10; //blocks
+
+
 class Block {
-    constructor(index, hash, previousHash, timestamp, data){
+    constructor(index, hash, previousHash, timestamp, data, difficulty, nonce){
         this.index = index;
         this.hash = hash;
         this.previousHash = previousHash;
         this.timestamp = timestamp;
-        this.data =data
+        this.data =data;
+        this.difficulty = difficulty;
+        this.nonce = nonce;
     }
 }
 
@@ -23,7 +32,9 @@ const genesisBlock = new Block(
     'A15E75180752B2CB22AB7965C30564AA5559F1013EF98A7018BD866C7C8E1152',  // hash
     null, //previousHash
     1523495527274, //timestamp
-    "The First Securecoin block" //data
+    "The First Securecoin block", //data
+    0,
+    0
 )
 
 let blockChain = [genesisBlock];
@@ -36,28 +47,78 @@ const getTimeStamp = () => new Date().getTime() / 1000;
 
 const getBlockChain = () => blockChain;
 
-const createHash = (index, previousHash, timestamp, data) => 
-    CryptoJS.SHA256(index + previousHash + timestamp + JSON.stringify(data)).toString();
+const createHash = (index, previousHash, timestamp, data, difficulty, nonce) => 
+    CryptoJS.SHA256(
+        index + previousHash + timestamp + JSON.stringify(data) + difficulty + nonce
+    ).toString();
 
 
 const createNewBlock = data => {
     const previousBlock = getNewestBlock();
     const newBlockIndex = previousBlock.index + 1;
     const newTimestamp = getTimeStamp();
-    const newHash = createHash(newBlockIndex,previousBlock.hash,newTimestamp,data);
-    const newBlock = new Block(
+    const difficulty = findDifficulty();
+    const newBlock = findBlock(
         newBlockIndex,
-        newHash,
         previousBlock.hash,
         newTimestamp,
-        data
+        data,
+        difficulty,
     );
     addBlockToChain(newBlock);
     require("./p2p").broadcastNewBlock();
     return newBlock;
 };
 
-const getBlocksHash = (block) => createHash(block.index, block.previousHash, block.timestamp, block.data);
+const findDifficulty = () =>{
+    const newestBlock = getNewestBlock();
+    if(newestBlock.index % DIFFICULTY_ADJUSTMENT_INTERVAL === 0 && 
+        newestBlock.index !== 0){ // not genesis block.
+        //calculate new difficulty
+        return calculateNewDifficulty(newestBlock, getBlockChain());
+    } else {
+        return newestBlock.difficulty;
+    }
+}
+
+const calculateNewDifficulty = (newestBlock, blockChain) => {
+    const lastCalculatedBlock = blockChain[blockChain.length - DIFFICULTY_ADJUSTMENT_INTERVAL];
+    const timeExpected = BLOCK_GENERATION_INTERVAL * DIFFICULTY_ADJUSTMENT_INTERVAL;
+    const timeTaken = newestBlock.timestamp - lastCalculatedBlock.timestamp;
+
+    // 2배라면 줄인다.
+    if( timeTaken < timeExpected/2 ){
+        return lastCalculatedBlock.difficulty + 1;
+    } else if ( timeTaken > timeExpected *2 ){
+        return lastCalculatedBlock.difficulty - 1;
+    } else {
+        return lastCalculatedBlock.difficulty;
+    }
+
+}
+
+const findBlock = (index, previousHash, timestamp, data, difficulty) => {
+    let nonce = 0;
+    while(true){
+        console.log("Current Nonce : ",nonce);
+        const hash = createHash(index,previousHash,timestamp,data,difficulty,nonce);
+        //to do : check amount of zeros
+        if(hashMatchesDifficulty(hash,difficulty)){
+            return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
+        } else {
+            nonce++;
+        }
+    }
+}
+
+const hashMatchesDifficulty = (hash, difficulty) => {
+    const hashInBinary = hexToBinary(hash);
+    const requiredZeros = "0".repeat(difficulty);
+    console.log("Trying difficulty : ",difficulty, " with hash : ", hashInBinary);
+    return hashInBinary.startsWith(requiredZeros);
+}
+
+const getBlocksHash = (block) => createHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
 
 const isBlockValid = (candidateBlock, latestBlock) =>{
     if(!isBlockStructureValid(candidateBlock)){
