@@ -31,7 +31,7 @@ const genesisBlock = new Block(
     0, // index
     'A15E75180752B2CB22AB7965C30564AA5559F1013EF98A7018BD866C7C8E1152',  // hash
     null, //previousHash
-    1523495527274, //timestamp
+    1525539370, //timestamp
     "The First Securecoin block", //data
     0,
     0
@@ -43,7 +43,7 @@ let blockChain = [genesisBlock];
 
 const getNewestBlock = () => blockChain[blockChain.length -1];
 
-const getTimeStamp = () => new Date().getTime() / 1000;
+const getTimeStamp = () => Math.round(new Date().getTime() / 1000);
 
 const getBlockChain = () => blockChain;
 
@@ -120,6 +120,13 @@ const hashMatchesDifficulty = (hash, difficulty) => {
 
 const getBlocksHash = (block) => createHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
 
+const isTimeStampValid = (newBlock, oldBlock) =>{
+    return (
+        oldBlock.timestamp - 60 < newBlock.timestamp 
+        && newBlock.timestamp - 60 < getTimeStamp()
+    );
+}
+
 const isBlockValid = (candidateBlock, latestBlock) =>{
     if(!isBlockStructureValid(candidateBlock)){
         console.log("The candidate block structure is not valid");
@@ -132,6 +139,9 @@ const isBlockValid = (candidateBlock, latestBlock) =>{
         return false;
     } else if (getBlocksHash(candidateBlock) !== candidateBlock.hash){
         console.log("The hash of this block is invalid");
+        return false;
+    } else if (!isTimeStampValid(candidateBlock,latestBlock)){
+        console.log("The timestamp of this block is doggy");
         return false;
     }
     return true;
