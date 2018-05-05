@@ -1,5 +1,5 @@
 const CryptoJS = require("crypto-js");
-    hexToBinary = require("hex-to-binary");
+hexToBinary = require("hex-to-binary");
 
 //Real Bit Coin is...
 // 블록의 hash 를 hex 로 바꾸어서 앞에 0이 열 몇자리가 나와야 한다.
@@ -10,17 +10,17 @@ const CryptoJS = require("crypto-js");
 
 // 2016 개의 블록마다 난이도 조절이 들어간다. 10분 내외로.
 
-const BLOCK_GENERATION_INTERVAL         =   10; //sec
-const DIFFICULTY_ADJUSTMENT_INTERVAL    =   10; //blocks
+const BLOCK_GENERATION_INTERVAL = 10; //sec
+const DIFFICULTY_ADJUSTMENT_INTERVAL = 10; //blocks
 
 
 class Block {
-    constructor(index, hash, previousHash, timestamp, data, difficulty, nonce){
+    constructor(index, hash, previousHash, timestamp, data, difficulty, nonce) {
         this.index = index;
         this.hash = hash;
         this.previousHash = previousHash;
         this.timestamp = timestamp;
-        this.data =data;
+        this.data = data;
         this.difficulty = difficulty;
         this.nonce = nonce;
     }
@@ -41,13 +41,13 @@ let blockChain = [genesisBlock];
 
 //console.log(blockChain);
 
-const getNewestBlock = () => blockChain[blockChain.length -1];
+const getNewestBlock = () => blockChain[blockChain.length - 1];
 
 const getTimeStamp = () => Math.round(new Date().getTime() / 1000);
 
 const getBlockChain = () => blockChain;
 
-const createHash = (index, previousHash, timestamp, data, difficulty, nonce) => 
+const createHash = (index, previousHash, timestamp, data, difficulty, nonce) =>
     CryptoJS.SHA256(
         index + previousHash + timestamp + JSON.stringify(data) + difficulty + nonce
     ).toString();
@@ -70,10 +70,10 @@ const createNewBlock = data => {
     return newBlock;
 };
 
-const findDifficulty = () =>{
+const findDifficulty = () => {
     const newestBlock = getNewestBlock();
-    if(newestBlock.index % DIFFICULTY_ADJUSTMENT_INTERVAL === 0 && 
-        newestBlock.index !== 0){ // not genesis block.
+    if (newestBlock.index % DIFFICULTY_ADJUSTMENT_INTERVAL === 0 &&
+        newestBlock.index !== 0) { // not genesis block.
         //calculate new difficulty
         return calculateNewDifficulty(newestBlock, getBlockChain());
     } else {
@@ -87,9 +87,9 @@ const calculateNewDifficulty = (newestBlock, blockChain) => {
     const timeTaken = newestBlock.timestamp - lastCalculatedBlock.timestamp;
 
     // 2배라면 줄인다.
-    if( timeTaken < timeExpected/2 ){
+    if (timeTaken < timeExpected / 2) {
         return lastCalculatedBlock.difficulty + 1;
-    } else if ( timeTaken > timeExpected *2 ){
+    } else if (timeTaken > timeExpected * 2) {
         return lastCalculatedBlock.difficulty - 1;
     } else {
         return lastCalculatedBlock.difficulty;
@@ -99,11 +99,11 @@ const calculateNewDifficulty = (newestBlock, blockChain) => {
 
 const findBlock = (index, previousHash, timestamp, data, difficulty) => {
     let nonce = 0;
-    while(true){
-        console.log("Current Nonce : ",nonce);
-        const hash = createHash(index,previousHash,timestamp,data,difficulty,nonce);
+    while (true) {
+        console.log("Current Nonce : ", nonce);
+        const hash = createHash(index, previousHash, timestamp, data, difficulty, nonce);
         //to do : check amount of zeros
-        if(hashMatchesDifficulty(hash,difficulty)){
+        if (hashMatchesDifficulty(hash, difficulty)) {
             return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
         } else {
             nonce++;
@@ -114,33 +114,33 @@ const findBlock = (index, previousHash, timestamp, data, difficulty) => {
 const hashMatchesDifficulty = (hash, difficulty) => {
     const hashInBinary = hexToBinary(hash);
     const requiredZeros = "0".repeat(difficulty);
-    console.log("Trying difficulty : ",difficulty, " with hash : ", hashInBinary);
+    console.log("Trying difficulty : ", difficulty, " with hash : ", hashInBinary);
     return hashInBinary.startsWith(requiredZeros);
 }
 
 const getBlocksHash = (block) => createHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
 
-const isTimeStampValid = (newBlock, oldBlock) =>{
+const isTimeStampValid = (newBlock, oldBlock) => {
     return (
-        oldBlock.timestamp - 60 < newBlock.timestamp 
+        oldBlock.timestamp - 60 < newBlock.timestamp
         && newBlock.timestamp - 60 < getTimeStamp()
     );
 }
 
-const isBlockValid = (candidateBlock, latestBlock) =>{
-    if(!isBlockStructureValid(candidateBlock)){
+const isBlockValid = (candidateBlock, latestBlock) => {
+    if (!isBlockStructureValid(candidateBlock)) {
         console.log("The candidate block structure is not valid");
         return false;
-    }else if(latestBlock.index + 1 !== candidateBlock.index){
+    } else if (latestBlock.index + 1 !== candidateBlock.index) {
         console.log("The candidate block doesn't have a valid index");
         return false;
-    } else if(latestBlock.hash !== candidateBlock.previousHash){
+    } else if (latestBlock.hash !== candidateBlock.previousHash) {
         console.log("The previousHash of the candidate block is not the hash of the latest block");
         return false;
-    } else if (getBlocksHash(candidateBlock) !== candidateBlock.hash){
+    } else if (getBlocksHash(candidateBlock) !== candidateBlock.hash) {
         console.log("The hash of this block is invalid");
         return false;
-    } else if (!isTimeStampValid(candidateBlock,latestBlock)){
+    } else if (!isTimeStampValid(candidateBlock, latestBlock)) {
         console.log("The timestamp of this block is doggy");
         return false;
     }
@@ -149,12 +149,12 @@ const isBlockValid = (candidateBlock, latestBlock) =>{
 
 const isBlockStructureValid = block => {
     return (
-        typeof block.index === 'number' && 
-        typeof block.hash === "string" && 
-        typeof block.previousHash === "string" && 
-        typeof block.timestamp === "number" && 
+        typeof block.index === 'number' &&
+        typeof block.hash === "string" &&
+        typeof block.previousHash === "string" &&
+        typeof block.timestamp === "number" &&
         typeof block.data === "string"
-    ) 
+    )
 }
 
 const isChainValid = (candidateChain) => {
@@ -162,22 +162,31 @@ const isChainValid = (candidateChain) => {
     const isGenesisValid = block => {
         return JSON.stringify(block) === JSON.stringify(genesisBlock);
     };
-    if(!isGenesisValid(candidateChain[0])){
+    if (!isGenesisValid(candidateChain[0])) {
         console.log("The candidateChain's genesisBlock is not the same as our genesisBlock ");
         return false;
     }
-    
-    for (let i= 1; i < candidateChain.length; i++){ 
+
+    for (let i = 1; i < candidateChain.length; i++) {
         // I don't want to validate genesis block - Genesis block doesn't have prev hash
-        if(!isBlockValid(candidateChain[i], candidateChain[i-1])){
+        if (!isBlockValid(candidateChain[i], candidateChain[i - 1])) {
             return false;
         }
         return true;
     }
 }
 
+//Only Add if more difficult than us.
+
+const sumDifficulty = anyBlockchain => 
+    anyBlockchain
+    .map(block => block.difficulty)
+    .map(difficulty => Math.pow(2, difficulty))
+    .reduce((a, b) => a + b);
+
 const replaceChain = candidateChain => {
-    if(isChainValid(candidateChain) && candidateChain.length > getBlockChain().length){
+    if (isChainValid(candidateChain) 
+        && sumDifficulty(candidateChain) > sumDifficulty(getBlockChain())){ // check difficulty, not length.
         blockChain = candidateChain;
         return true;
     } else {
@@ -186,7 +195,7 @@ const replaceChain = candidateChain => {
 };
 
 const addBlockToChain = candidateBlock => {
-    if(isBlockValid(candidateBlock,getNewestBlock())){
+    if (isBlockValid(candidateBlock, getNewestBlock())) {
         blockChain.push(candidateBlock);
         return true;
     } else {
