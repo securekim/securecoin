@@ -1,4 +1,9 @@
-const CryptoJS = require("crypto-js");
+import { ECANCELED } from "constants";
+
+const CryptoJS = require("crypto-js"),
+    elliptic = require("elliptic");
+
+const ec = new EC("secp256k1");
 
 class TxOut {
     constructor(address, amount){
@@ -55,5 +60,18 @@ const getTxId = tx => {
     return CryptoJS.SHA256(txInContent + txOutContent).toString(); 
 }
 
+const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
+    const txIn = tx.txIns[txInIndex];
+    const dataToSign = tx.id;
 
+    //정말로 너가 그 코인을 가지고 있는지 검증 필요
+    // To Do : Find Tx
+    const referencedUTxOut = null;
+    if(referencedUTxOut === null){
+        // Don't have the coin
+        return;
+    }
+
+
+}
 
