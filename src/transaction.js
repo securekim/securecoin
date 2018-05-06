@@ -31,9 +31,9 @@ class Transaction {
 }
 
 class uTxOut{
-    constructor(uTxOutId, uTxOutIndex, address, amount){
-        this.uTxOutId = uTxOutId;
-        this.uTxOutIndex = uTxOutIndex;
+    constructor(txOutId, txOutIndex, address, amount){
+        this.txOutId = uTxOutId;
+        this.txOutIndex = uTxOutIndex;
         this.address = address;
         this.amount = amount;
 
@@ -60,18 +60,26 @@ const getTxId = tx => {
     return CryptoJS.SHA256(txInContent + txOutContent).toString(); 
 }
 
+const findUTxOut = (txOutId, txOutIndex, uTxOutList) =>{
+    // 인풋 없는 트랜잭션은 없다
+    // INPUT 은 사용하지 않은 OUTPUT 이다.
+    return uTxOutList.find(uTxOut => uTxOut.txOutId === txOutId 
+        && uTxOut.txOutIndex === txOutIndex)
+}
+
 const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
     const txIn = tx.txIns[txInIndex];
     const dataToSign = tx.id;
 
     //정말로 너가 그 코인을 가지고 있는지 검증 필요
     // To Do : Find Tx
-    const referencedUTxOut = null;
+    const referencedUTxOut = findUtxOut(txIn.txOutId, tx.txOutIndex, uTxOuts);
     if(referencedUTxOut === null){
         // Don't have the coin
         return;
     }
 
+    // To Do : Sign the txIn
 
 }
 
