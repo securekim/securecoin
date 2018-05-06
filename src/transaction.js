@@ -30,10 +30,10 @@ class Transaction {
 
 }
 
-class uTxOut{
+class UTxOut{
     constructor(txOutId, txOutIndex, address, amount){
-        this.txOutId = uTxOutId;
-        this.txOutIndex = uTxOutIndex;
+        this.txOutId = txOutId;
+        this.txOutIndex = txOutIndex;
         this.address = address;
         this.amount = amount;
 
@@ -83,5 +83,15 @@ const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
     const key = ec.keyFromPrivate(privateKey, "hex");
     const signature = utils.toHexString(key.sign(dataToSign).toDER()); // DER is binary format
     return signature;
+}
+
+const updateUtxOuts = (newTxs, uTxOutList) => {
+    const newUTxOuts = newTxs.map(tx =>{
+        tx.txOuts.map(
+            (txOut, index) => {
+                new UTxOut(tx.id, index, txOut.address, txOut.amount);
+            }
+        );
+    }).reduce((a,b) => a.concat(b),[]);
 }
 
