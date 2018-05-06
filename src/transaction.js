@@ -1,9 +1,9 @@
-import { ECANCELED } from "constants";
 
 const CryptoJS = require("crypto-js"),
     elliptic = require("elliptic");
+    utils = require("utils");
 
-const ec = new EC("secp256k1");
+const ec = new elliptic.ec("secp256k1");
 
 class TxOut {
     constructor(address, amount){
@@ -80,6 +80,8 @@ const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
     }
 
     // To Do : Sign the txIn
-
+    const key = ec.keyFromPrivate(privateKey, "hex");
+    const signature = utils.toHexString(key.sign(dataToSign).toDER()); // DER is binary format
+    return signature;
 }
 
