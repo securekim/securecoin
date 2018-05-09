@@ -135,3 +135,42 @@ const updateUtxOuts = (newTxs, uTxOutList) => {
     return resultingUtxOuts; // [ B(20), ZZ(10), MM(30)]
 }
 
+const isTxInStructureValid = (txIn) =>{
+    if(txIn === null){
+        return false;
+    } else if (typeof txIn.signature !=="string"){
+        return false;
+    } else if (typeof txIn.txOutId !== "string"){
+        return false;
+    } else if (typeof txIn.txOutIndex !== "number"){
+        return false;
+    } else {
+        return true;
+    }
+}
+
+const isTxOutStructureValid =(txOut) =>{
+    if(txOut === null){
+        return false;
+    }
+}
+
+const istTxStructureValid = (tx) =>{
+    if(typeof tx.id !== "string"){
+        console.log("Tx ID is not string");
+        return false;
+    }else if (!(tx.txIns instanceof Array)){
+        console.log("The txIns are not an array");
+        return false;
+    }else if (){
+        console.log("The structure of one of the txIn is not valid");
+        return false;
+    } else if(!(tx.txouts instanceof Array)){
+        console.log("The txOuts are not an array");
+        return false;        
+    } else if (){
+        return false;
+    } else {
+        return true;
+    }
+}
