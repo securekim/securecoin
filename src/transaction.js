@@ -86,19 +86,52 @@ const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
 }
 
 const updateUtxOuts = (newTxs, uTxOutList) => {
-    const newUTxOuts = newTxs.map(tx =>{
-        tx.txOuts.map(
+
+       //Generate New Transaction output
+       // get transaction output, then, make unspent transaction outputs
+
+
+    const newUTxOuts = newTxs.map(tx =>{ //loop all tx
+        tx.txOuts.map( //loop all tx in txOuts
             (txOut, index) => {
                 new UTxOut(tx.id, index, txOut.address, txOut.amount);
             }
         );
     }).reduce((a,b) => a.concat(b),[]);
-    
+
+        /*
+        Unspent List
+        [A(40), B(20)]
+
+        newUtxOuts
+        [ZZ(10), MM(30)]
+        */
+
     // 쓸것들을 합쳐서 인풋에 넣어주고 비워준다.
     const spentTxOuts = newTxs.map(tx => tx.txIns)
         .reduce((a, b) => a.concat(b),[])
-        .map(txIn => new UTxOut(txIn.txOutId, txIn.txOutIndex, "", 0));
+        .map(txIn => new UTxOut(txIn.txOutId, txIn.txOutIndex, "", 0)); //EMPTY
 
+        /*
+        Unspent List
+        [A(0), B(20)]
+
+        A(0) ---> TRANSACTION   ---> ZZ(10)
+                                ---> MM(30)
+        */
+
+    //unspent list 에서 삭제해준다. 쓸거니깐.
+    const resultingUtxOuts = uTxOutList
+        .filter(uTxO =>  findUTxOut(uTxO.txOutId, uTxO.txOutIndex, spentTxOuts))
+        .concat(newUTxOuts);
+
+        /*
+        [ B(20), ZZ(10), MM(30)]
+
+        A(0) ---> TRANSACTION   ---> ZZ(10)
+                                ---> MM(30)
+        */
     
+    return resultingUtxOuts; // [ B(20), ZZ(10), MM(30)]
 }
 
