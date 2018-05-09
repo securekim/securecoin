@@ -1,3 +1,7 @@
+//YARN ADD
+//nodemon ws crypto-js hex-to-binary express morgan body-parser
+
+
 const CryptoJS = require("crypto-js");
 hexToBinary = require("hex-to-binary");
 

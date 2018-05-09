@@ -93,5 +93,12 @@ const updateUtxOuts = (newTxs, uTxOutList) => {
             }
         );
     }).reduce((a,b) => a.concat(b),[]);
+    
+    // 쓸것들을 합쳐서 인풋에 넣어주고 비워준다.
+    const spentTxOuts = newTxs.map(tx => tx.txIns)
+        .reduce((a, b) => a.concat(b),[])
+        .map(txIn => new UTxOut(txIn.txOutId, txIn.txOutIndex, "", 0));
+
+    
 }
 
