@@ -149,8 +149,9 @@ const isTxInStructureValid = (txIn) =>{
     }
 }
 
+
 const isAddressValid = (address) => {
-    if(address.length !== 300){
+    if(address.length !== 130){
         return false;
     } else if(address.match("^[a-fA-F0-9]+$")===null){
         return false;
@@ -176,20 +177,22 @@ const isTxOutStructureValid =(txOut) =>{
     }
 }
 
-const istTxStructureValid = (tx) =>{
+const isTxStructureValid = (tx) =>{
     if(typeof tx.id !== "string"){
         console.log("Tx ID is not string");
         return false;
     }else if (!(tx.txIns instanceof Array)){
         console.log("The txIns are not an array");
         return false;
-    }else if (){
+    }else if (!tx.txIns.map(isTxInStructureValid).reduce((a,b)=> a && b, true)){ // map : 참 거짓 덩어리, reduce 로 서로를 && 해서 트루인지 확인 
         console.log("The structure of one of the txIn is not valid");
         return false;
     } else if(!(tx.txouts instanceof Array)){
         console.log("The txOuts are not an array");
         return false;        
-    } else if (){
+    } else if (
+        !tx.txOuts.map(isTxOutStructureValid).reduce((a,b) => a && b, true)
+    ){
         return false;
     } else {
         return true;
