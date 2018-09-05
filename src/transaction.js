@@ -187,12 +187,35 @@ const isTxStructureValid = (tx) =>{
     }else if (!tx.txIns.map(isTxInStructureValid).reduce((a,b)=> a && b, true)){ // map : 참 거짓 덩어리, reduce 로 서로를 && 해서 트루인지 확인 
         console.log("The structure of one of the txIn is not valid");
         return false;
-    } else if(!(tx.txouts instanceof Array)){
+    } else if (!(tx.txouts instanceof Array)){
         console.log("The txOuts are not an array");
         return false;        
     } else if (
         !tx.txOuts.map(isTxOutStructureValid).reduce((a,b) => a && b, true)
     ){
+        console.log("The structure of one of the txOut is not valid");
+        return false;
+    } else {
+        return true;
+    }
+}
+
+const validateTx = (tx, uTxOutList) => {
+    if (getTxId(tx) !== tx.id){
+        return false;
+    }
+
+    const hasValidTxIns = //todo
+
+    if (!hasValidTxIns) {
+        return;
+    }
+
+    const amountInTxIns = //todo
+    
+    const amountInTxOut = //todo
+
+    if (amountInTxIns !== amountInTxOut){
         return false;
     } else {
         return true;
