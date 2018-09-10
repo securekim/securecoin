@@ -63,8 +63,8 @@ const getTxId = tx => {
 const findUTxOut = (txOutId, txOutIndex, uTxOutList) =>{
     // 인풋 없는 트랜잭션은 없다
     // INPUT 은 사용하지 않은 OUTPUT 이다.
-    return uTxOutList.find(uTxOut => uTxOut.txOutId === txOutId 
-        && uTxOut.txOutIndex === txOutIndex)
+    return uTxOutList.find(
+        uTxO => uTxO.txOutId === txOutId && uTxO.txOutIndex === txOutIndex)
 }
 
 const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
@@ -91,7 +91,8 @@ const updateUtxOuts = (newTxs, uTxOutList) => {
        // get transaction output, then, make unspent transaction outputs
 
 
-    const newUTxOuts = newTxs.map(tx =>{ //loop all tx
+    const newUTxOuts = newTxs
+    .map(tx =>{ //loop all tx
         tx.txOuts.map( //loop all tx in txOuts
             (txOut, index) => {
                 new UTxOut(tx.id, index, txOut.address, txOut.amount);
@@ -205,7 +206,20 @@ const validateTx = (tx, uTxOutList) => {
         return false;
     }
 
-    const hasValidTxIns = //todo
+    const validateTxIn = (txIn, tx, uTxOutList) => {
+        const wantedTxOut = uTxOutList.find(uTxO => uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex);
+        if(wantedTxOut === null){
+            return false;
+        } else {
+            const address = wantedTxOut.address;
+            const key = ec.keyFromPublic(address, "hex");
+            return key.verify(tx.id, txIn.signature);
+        }
+    }
+
+    const hasValidTxIns = tx.txIns.map(txIn => validateTxIn(txIn, tx, uTxOuts));
+        
+    
 
     if (!hasValidTxIns) {
         return;
