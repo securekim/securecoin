@@ -78,13 +78,21 @@ const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
     const referencedUTxOut = findUtxOut(txIn.txOutId, tx.txOutIndex, uTxOuts);
     if(referencedUTxOut === null){
         // Don't have the coin
+        console.log("Couldn't find the referenced uTxOut, not signing");
         return;
     }
-
+    const referencedAddress = referencedUTxOut.address;
+    if(getPublicKey(privateKey) !== referencedAddress) {
+        return false;
+    }
     // To Do : Sign the txIn
     const key = ec.keyFromPrivate(privateKey, "hex");
     const signature = utils.toHexString(key.sign(dataToSign).toDER()); // DER is binary format
     return signature;
+}
+
+const getPublicKey = (privateKey) => {
+    return ec.keyFromPrivate(privateKey, "hex").getPublic().encode("hex");
 }
 
 const updateUtxOuts = (newTxs, uTxOutList) => {
