@@ -66,13 +66,13 @@ const findUTxOut = (txOutId, txOutIndex, uTxOutList) =>{
         uTxO => uTxO.txOutId === txOutId && uTxO.txOutIndex === txOutIndex)
 }
 
-const signTxIn = (tx, txInIndex, privateKey, uTxOut) => {
+const signTxIn = (tx, txInIndex, privateKey, uTxOutList) => {
     const txIn = tx.txIns[txInIndex];
     const dataToSign = tx.id;
 
     //정말로 너가 그 코인을 가지고 있는지 검증 필요
     // To Do : Find Tx
-    const referencedUTxOut = findUtxOut(txIn.txOutId, tx.txOutIndex, uTxOuts);
+    const referencedUTxOut = findUtxOut(txIn.txOutId, tx.txOutIndex, uTxOutList);
     if(referencedUTxOut === null){
         // Don't have the coin
         console.log("Couldn't find the referenced uTxOut, not signing");
@@ -270,5 +270,6 @@ module.exports = {
     getTxId,
     signTxIn,
     TxIn,
-    Transaction
+    Transaction,
+    TxOut
 }
