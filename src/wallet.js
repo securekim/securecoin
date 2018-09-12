@@ -4,7 +4,7 @@ path = require("path"),
   _  = require("lodash");
   Transactions = require("./transactions");
 
-const { getPublicKey, getTxId, signTxIn } = Transactions
+const { getPublicKey, getTxId, signTxIn, TxIn, Transaction } = Transactions
 
 const ec = new elliptic.ec("secp256k1");
 
@@ -65,6 +65,19 @@ const createTx = (receiverADdress, amount, privateKey, uTxOutList) => {
         amount,
         myUTxOuts
     );
+    const toUnsignedTxIn = uTxOut => {
+        const txIn = new TxIn();
+        txIn.txOutId = uTxOut.txOutId;
+        tx.txOutIndex = uTxOut.txOutIndex;
+    }
+
+    const unsignedTxIns = includedUTxOuts.map(toUnsignedTxIn);
+
+    const tx = new Transaction();
+
+    tx.txIns  = unsignedTxIns;
+    tx.txOuts = 
+    
 }
 
 module.exports = {
