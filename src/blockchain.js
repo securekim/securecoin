@@ -3,7 +3,11 @@
 
 
 const CryptoJS = require("crypto-js");
-hexToBinary = require("hex-to-binary");
+    Wallet = require("./wallet");
+    hexToBinary = require("hex-to-binary");
+
+const { getBalance, getPublicFromWallet } = Wallet;
+
 
 //Real Bit Coin is...
 // 블록의 hash 를 hex 로 바꾸어서 앞에 0이 열 몇자리가 나와야 한다.
@@ -40,6 +44,8 @@ const genesisBlock = new Block(
     0,
     0
 )
+
+let uTxOuts = [];
 
 let blockChain = [genesisBlock];
 
@@ -207,11 +213,15 @@ const addBlockToChain = candidateBlock => {
     }
 }
 
+const getAccountBalance = () => 
+getBalance(getPublicFromWallet(), uTxOuts);
+
 module.exports = {
     getBlockChain,
     createNewBlock,
     getNewestBlock,
     isBlockStructureValid,
     addBlockToChain,
-    replaceChain
+    replaceChain,
+    getAccountBalance
 }

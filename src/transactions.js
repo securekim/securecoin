@@ -1,7 +1,7 @@
 
 const CryptoJS = require("crypto-js"),
     elliptic = require("elliptic");
-    utils = require("utils");
+    utils = require("./utils");
 
 const ec = new elliptic.ec("secp256k1");
 
@@ -39,7 +39,7 @@ class UTxOut{
     }
 }
 
-let uTxOuts = [];
+
 
 //transaction will be hashed -> This is ID
 
