@@ -4,10 +4,11 @@
 
 const CryptoJS = require("crypto-js");
     Wallet = require("./wallet");
+    Transactions = require("./transactions");
     hexToBinary = require("hex-to-binary");
 
 const { getBalance, getPublicFromWallet } = Wallet;
-
+const { createCoinbaseTx } = Transactions;
 
 //Real Bit Coin is...
 // 블록의 hash 를 hex 로 바꾸어서 앞에 0이 열 몇자리가 나와야 한다.
@@ -62,8 +63,13 @@ const createHash = (index, previousHash, timestamp, data, difficulty, nonce) =>
         index + previousHash + timestamp + JSON.stringify(data) + difficulty + nonce
     ).toString();
 
+const createNewBlock = () => {
+    const coinbaseTx = createCoinbaseTx(getPublicFromWallet(), getNewestBlock().index + 1);
+    const blockData = [coinbaseTx];
+    return createNewRawBlock(blockData);
+}
 
-const createNewBlock = data => {
+const createNewRawBlock = data => {
     const previousBlock = getNewestBlock();
     const newBlockIndex = previousBlock.index + 1;
     const newTimestamp = getTimeStamp();
@@ -140,6 +146,7 @@ const isTimeStampValid = (newBlock, oldBlock) => {
 const isBlockValid = (candidateBlock, latestBlock) => {
     if (!isBlockStructureValid(candidateBlock)) {
         console.log("The candidate block structure is not valid");
+        console.log(candidateBlock);
         return false;
     } else if (latestBlock.index + 1 !== candidateBlock.index) {
         console.log("The candidate block doesn't have a valid index");
@@ -162,8 +169,8 @@ const isBlockStructureValid = block => {
         typeof block.index === 'number' &&
         typeof block.hash === "string" &&
         typeof block.previousHash === "string" &&
-        typeof block.timestamp === "number" &&
-        typeof block.data === "string"
+        typeof block.timestamp === "number" 
+        //&& typeof block.data === "string"
     )
 }
 
@@ -218,6 +225,7 @@ getBalance(getPublicFromWallet(), uTxOuts);
 
 module.exports = {
     getBlockChain,
+    createNewRawBlock,
     createNewBlock,
     getNewestBlock,
     isBlockStructureValid,
