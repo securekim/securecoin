@@ -8,7 +8,7 @@ const CryptoJS = require("crypto-js");
     hexToBinary = require("hex-to-binary");
 
 const { getBalance, getPublicFromWallet } = Wallet;
-const { createCoinbaseTx } = Transactions;
+const { createCoinbaseTx, processTxs } = Transactions;
 
 //Real Bit Coin is...
 // 블록의 hash 를 hex 로 바꾸어서 앞에 0이 열 몇자리가 나와야 한다.
@@ -213,8 +213,15 @@ const replaceChain = candidateChain => {
 
 const addBlockToChain = candidateBlock => {
     if (isBlockValid(candidateBlock, getNewestBlock())) {
-        blockChain.push(candidateBlock);
-        return true;
+        const processedTxs = processTxs(candidateBlock.data, uTxOuts, candidateBlock.index);
+        if(processedTxs === null){
+            console.log("Couldn't process txs");
+            return false;
+        } else {
+            blockChain.push(candidateBlock);
+            uTxOuts = processedTxs;
+            return true;
+        }
     } else {
         return false;
     }
