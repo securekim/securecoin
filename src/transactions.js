@@ -277,16 +277,35 @@ const createCoinbaseTx = (address, blockIndex) => {
     return tx;
 }
 
+const hasDuplicates = (txIns) => {
+    const groups = _.countBy(txIns, txIn => txIn.txOutId + txIn.txOutIndex); 
+    // groups
+    // 00001 : 1, 00002 : 1, 00003 : 1
+    return _(groups).map(value => {
+        if(value > 1) {
+            //중복이 존재한다
+            console.log("Found a duplicated txIn");
+            return true;
+        } else {
+            return false;
+        }
+    }).includes(true); //하나라도 true 인지
+    //txIn 
+    //1231241241231
+}
+
 const validateBlockTx = (tx, uTxOutList, blockIndex) => {
     const coinbaseTx = tx[0];
     if(!validateCoinbaseTx(coinbaseTx, blockIndex)){
         console.log("Coinbase Tx is invalid");
     }
     const txIns = _(tx).map(tx => tx.Ins).flatten().value();
-    if(// check if the txIns are duplicated){
+    
+    if(hasDuplicates(txIns)){
         console.log("Found duplicated txIns");
         return false;
     }
+    const nonCoinbaseTxs = tx.slice(1);
 }
 
 const processTxs = (txs, uTxOutList, blockIndex) => {
